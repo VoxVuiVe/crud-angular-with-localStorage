@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Students } from '../models/students';
+import { StudentService } from '../services/student.service';
+
 
 @Component({
   selector: 'app-home',
@@ -9,19 +12,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 
 export class HomeComponent implements OnInit {
-  studentArr: any = [];
-  id: string = '';
-  name: string = '';
-  email: string = '';
-  phone: string = '';
-    dob: string = '';
-    country: string = '';
-    gender: boolean = true;
+  students: Students[] = [];
+  studentForm: any = {}
+  flagIndex: any;
 
-  
   validateForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private studentsService: StudentService) {
     this.validateForm = this.formBuilder.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -31,53 +28,48 @@ export class HomeComponent implements OnInit {
       gender: ['', Validators.required]
     });
   }
-  
+
   ngOnInit(): void {
-    this.getAll();
+    this.loadStudents();
   }
 
-  getAll() {
-    let value = localStorage.getItem('item');
-    if (value != '' && value != null && typeof value != 'undefined') {
-      this.studentArr = JSON.parse(value!);
+  loadStudents(): void {
+    this.students = this.studentsService.getAll();
+  }
+
+  edit(index: number): void {
+    this.flagIndex = index;
+    this.studentForm = { ...this.students[index] };
+  }
+
+  delete(index: number): void {
+    this.studentsService.deleteService(index);
+  }
+
+  saveOrUpdate() {
+    if (this.validateForm.valid) {
+      const existingStudentIndex = this.students.findIndex(
+        (student: any) => student.name === this.studentForm.name
+      );
+  
+      if (this.flagIndex !== existingStudentIndex && existingStudentIndex !== -1) {
+        // Nếu flagIndex đã được thiết lập và student đã tồn tại, thực hiện cập nhật
+        this.studentsService.updateService(this.flagIndex, this.studentForm);
+        this.flagIndex = null;
+        console.log(this.students)
+        alert('Cập nhật thành công')
+      } else {
+        // Nếu không có flagIndex hoặc student không tồn tại, thực hiện thêm mới
+        this.studentsService.addService(this.studentForm);
+        alert('Thêm mới thành công')
+      }
+  
+      this.reset();
     }
   }
 
-  save() {
-    localStorage.setItem('item', JSON.stringify(this.studentArr));
+  reset(): void {
+    this.studentForm = {} as Students;
+    this.validateForm.reset()
   }
-
-  addProduct() {
-      if(this.validateForm.valid) {
-        const existingStudentsIndex = this.studentArr.findIndex(
-          (student: any) => student.name === this.name
-        );
-  
-        if (existingStudentsIndex !== -1) {
-          // Sản phẩm đã tồn tại, cập nhật thông tin
-          this.studentArr[existingStudentsIndex] = {
-            name: this.name,
-            email: this.email, // Chuyển đổi sang số
-            phone: this.phone, // Chuyển đổi sang số nguyên
-            dob: this.dob,
-            country: this.country,
-            gender: this.gender
-          };
-          alert("Cập nhật thành công")
-        } else {
-          const obj = {
-            name: this.name,
-            email: this.email, 
-            phone: this.phone, 
-            dob: this.dob,
-            country: this.country,
-            gender: this.gender
-          };
-          this.studentArr.push(obj);
-          alert('Thêm thành công');
-        }
-        this.save();
-      }
-  }
-
 }

@@ -6,6 +6,8 @@ import { Students } from '../models/students';
 })
 export class StudentService {
   private students: Students[] = [];
+  // studentForm: any = {}
+  // photoURL!: string;
 
   constructor() {
     this.loadLocalData();

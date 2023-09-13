@@ -2,13 +2,13 @@
 <div class="container">
     <div class="confirmation-container">
         <h1 class="login-header">DANH SÁCH SINH VIÊN</h1>
-        <!-- <p>Cảm ơn bạn đã đặt hàng! Dưới đây là thông tin chi tiết về đơn hàng của bạn</p>      -->
     </div>
     <div class="row">
         <table>
             <thead>
                 <tr>
                     <th scope="col">ID</th>
+                    <th scope="col">Ảnh</th>
                     <th scope="col" class="text-start">Tên sinh viên</th>
                     <th scope="col">Email</th>
                     <th scope="col">Điện thoại</th>
@@ -18,44 +18,50 @@
                   </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of students; let i = index">
+                <tr *ngFor="let st of students; let i = index">
                     <td>{{i +1}}</td>
                     <td>
-                        <div class="product-info">
-                            <img 
-                            src="https://images.pexels.com/photos/389819/pexels-photo-389819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                            alt="Product Image" class="product-image">
-                            <td>{{item.name}}</td>
-                        </div>
+                        <img [src]="st.image" alt=""class="product-image">
                     </td>
-                    <td>{{item.email}}</td>
-                    <td>{{item.phone}}</td>
-                    <td>{{item.dob}}</td>
-                    <td>{{item.gender}}</td>
-                    <td>{{item.country}}</td>
+                    <td>{{st.name}}</td>
+                    <td>{{st.email}}</td>
+                    <td>{{st.phone}}</td>
+                    <td>{{st.dob}}</td>
+                    <td>{{st.gender}}</td>
+                    <td>{{st.country}}</td>
                     <td>
                         <tr>
-                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#myModal" (click)="edit(i)">Sửa</button> |
-                            <a class="btn btn-danger" (click)="delete(i)">Xoá</a>
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#myModal" (click)="editStudent(i)">Sửa</button> |
+                            <a class="btn btn-danger" (click)="deleteStudent(i)">Xoá</a>
                         </tr>
                     </td>
+                    <div class="divider-nospace"></div>
                 </tr>
                 
             </tbody>
         </table>   
         <div class="text-center mt-3">
-           <a class="btn btn-gradient mt-3" type="button" routerLink="/add">Thêm SV khác</a>
+           <a class="btn btn-gradient mt-3" type="button" data-bs-toggle="modal" data-bs-target="#myModal" (click)="cancelEdit()">Thêm SV khác</a>
         </div> 
     </div>    
 </div>
 
   <!-- MODAL FORM CHỈNH SỬA -->
-<div class="modal" id="myModal" style="padding-top: 50px;">
+<div class="modal" id="myModal" style="padding-top: 30px;">
     <div class="container modal-content modal-dialog" style="padding: 0;">
         <div class="row">
-            <form [formGroup]="validateForm" (ngSubmit)="saveOrUpdate()" >
+            <form [formGroup]="validateForm" (ngSubmit)="submitForm()">
                 <div class="login-form mx-auto">
-                    <h2 class="login-header">MANAGEMENT STUDENTS</h2>
+                    <h2 class="login-header">Quản lí sinh viên</h2>
+                    <div class="mt-4"></div>
+                    <div class="form-group password-field">
+                        <label for="text">Ảnh sinh viên:</label>
+                        <input type="file" formControlName="image" id="image" class="form-control" (change)="onFileSelected($event)">
+                        <div class="divider-nospace"></div>
+                        <small *ngIf="validateForm.get('image')?.hasError('required') && validateForm.get('image')?.touched" class="error">
+                            Vui lòng chọn 1 ảnh
+                        </small>
+                    </div>
                     <div class="mt-4"></div>
                     <div class="form-group password-field">
                         <label for="text">Tên sinh viên:</label>
@@ -63,6 +69,9 @@
                         <div class="divider-nospace"></div>
                         <small *ngIf="validateForm.get('name')?.hasError('required') && validateForm.get('name')?.touched" class="error">
                             Vui lòng điền tên
+                        </small>
+                        <small *ngIf="validateForm.get('name')?.hasError('noWhiteSpace') && validateForm.get('name')?.touched" class="error">
+                            Không được phép điền ký tự trắng
                         </small>
                     </div>
                     <div class="mt-4"></div>
@@ -135,7 +144,7 @@
                         </small>
                       </div>
                     <div class="mt-4"></div>
-                    <input type="submit" class="login-button" value="Thêm sinh viên" [disabled]="!validateForm.valid">
+                    <input type="submit" class="login-button" value="Lưu" [disabled]="!validateForm.valid">
                 </div>
             </form>
         </div>

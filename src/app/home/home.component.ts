@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Students } from '../models/students';
 import { StudentService } from '../services/student.service';
 
@@ -14,7 +14,8 @@ import { StudentService } from '../services/student.service';
 export class HomeComponent implements OnInit {
   students: Students[] = [];
   studentForm: any = {}
-  flagIndex: any;
+  selectedFile: File | null = null;
+  flagIndex: number = -1;
 
   validateForm: FormGroup;
 
@@ -26,46 +27,84 @@ export class HomeComponent implements OnInit {
       dob: ['', Validators.required],
       country: ['', Validators.required],
       gender: ['', Validators.required]
+      // image: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
     this.loadStudents();
+    this.reset()
   }
 
   loadStudents(): void {
     this.students = this.studentsService.getAll();
   }
 
-  edit(index: number): void {
-    this.flagIndex = index;
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  addStudent() {
+    if (this.studentForm.name && this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.studentForm.image = event.target.result;
+        this.studentsService.addService(this.studentForm);
+        this.studentForm = {};
+        this.selectedFile = null;
+      };
+      reader.readAsDataURL(this.selectedFile);
+    }
+  }
+  
+  updateStudent() {
+    if (this.flagIndex !== null) {
+      if (this.selectedFile) {
+        const reader = new FileReader();
+        reader.onload = (event: any) => {
+          this.studentForm.image = event.target.result;
+          this.studentsService.updateService(this.flagIndex, this.studentForm);
+          this.cancelEdit(); // Kết thúc chỉnh sửa
+        };
+        reader.readAsDataURL(this.selectedFile);
+      } else {
+        // Nếu không có tệp mới được chọn, chỉ cập nhật thông tin khác
+        this.studentsService.updateService(this.flagIndex, this.studentForm);
+        this.cancelEdit(); // Kết thúc chỉnh sửa
+      }
+    }
+  }
+
+  submitForm() {
+    if(this.flagIndex !== -1) {
+      this.updateStudent()
+    } else {
+      this.addStudent()
+    }
+  }
+
+  
+  editStudent(index: number) {
+    this.flagIndex = index; // Bắt đầu chỉnh sửa
     this.studentForm = { ...this.students[index] };
   }
 
-  delete(index: number): void {
-    this.studentsService.deleteService(index);
+  edit(index: number) {
+    this.flagIndex = -1; // Bắt đầu chỉnh sửa
+    this.studentForm = {};
   }
 
-  saveOrUpdate() {
-    if (this.validateForm.valid) {
-      const existingStudentIndex = this.students.findIndex(
-        (student: any) => student.name === this.studentForm.name
-      );
-  
-      if (this.flagIndex !== existingStudentIndex && existingStudentIndex !== -1) {
-        // Nếu flagIndex đã được thiết lập và student đã tồn tại, thực hiện cập nhật
-        this.studentsService.updateService(this.flagIndex, this.studentForm);
-        this.flagIndex = null;
-        console.log(this.students)
-        alert('Cập nhật thành công')
-      } else {
-        // Nếu không có flagIndex hoặc student không tồn tại, thực hiện thêm mới
-        this.studentsService.addService(this.studentForm);
-        alert('Thêm mới thành công')
-      }
-  
-      this.reset();
-    }
+
+  cancelEdit() {
+    this.flagIndex = -1;
+    this.studentForm = {};
+    this.reset()
+  }
+
+  deleteStudent(index: number) {
+    // if (confirm('Are you sure you want to delete this employee?')) {
+      this.studentsService.deleteService(index);
+    // }
   }
 
   reset(): void {

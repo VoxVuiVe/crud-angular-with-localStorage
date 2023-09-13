@@ -3,6 +3,9 @@
     <div class="confirmation-container">
         <h1 class="login-header">DANH SÁCH SINH VIÊN</h1>
     </div>
+    <!--  -->
+    <input type="text" style="margin: 20px;color: black; background-color: white;" class="form-control" [(ngModel)]="searchItems" placeholder="Tìm kiếm..." (ngModelChange)="search()">
+    <!--  -->
     <div class="row">
         <table>
             <thead>
@@ -18,8 +21,8 @@
                   </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let st of students; let i = index">
-                    <td>{{i +1}}</td>
+                <tr *ngFor="let st of students |paginate:{itemsPerPage:8,currentPage:page,totalItems:totalLength} ; let i = index">
+                    <td>{{i + 1}}</td>
                     <td>
                         <img [src]="st.image" alt=""class="product-image">
                     </td>
@@ -39,7 +42,10 @@
                 </tr>
                 
             </tbody>
-        </table>   
+        </table>
+        <div class="text-center mt-3">
+            <pagination-controls (pageChange)="page=$event"></pagination-controls>
+        </div> 
         <div class="text-center mt-3">
            <a class="btn btn-gradient mt-3" type="button" data-bs-toggle="modal" data-bs-target="#myModal" (click)="cancelEdit()">Thêm SV khác</a>
         </div> 

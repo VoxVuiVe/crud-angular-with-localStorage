@@ -181,3 +181,48 @@ option {
   background-color: white; /* Màu nền đen */
   color: black; /* Màu chữ trắng */
 }
+
+// CSS Pagination
+.paginate {
+  padding: 10px; /* Khoảng cách lề bên trong phần tử */
+  border-radius: 5px; /* Góc bo tròn cho phần tử */
+}
+
+/* Tùy chỉnh giao diện cho pagination-controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Tùy chỉnh giao diện cho các nút trong pagination-controls (ví dụ: màu nền và màu văn bản) */
+.pagination-controls button {
+  background-color: #007bff; /* Màu nền của nút */
+  border: none; /* Loại bỏ viền của nút */
+  border-radius: 5px; /* Góc bo tròn cho nút */
+  padding: 5px 10px; /* Khoảng cách bên trong nút */
+  margin: 0 5px; /* Khoảng cách giữa các nút */
+}
+
+/* Tùy chỉnh giao diện cho các nút hover */
+.pagination-controls button:hover {
+  background-color: #0056b3; /* Màu nền khi hover */
+}
+
+// Input Search
+.form-control::placeholder {
+  /* Chrome.firefox,opera,safari 10.1+ */
+  color: black;
+  opacity: 1;
+  /* Firefox*/
+}
+
+.form-control:-ms-input-placeholder {
+  /* Internet Explorer 10-11*/
+  color: rgba(243, 165, 42, 0.4);
+}
+
+.form-control::-ms-input-placeholder {
+  /* Microsoft Edge*/
+  color: rgba(243, 165, 42, 0.4);
+}

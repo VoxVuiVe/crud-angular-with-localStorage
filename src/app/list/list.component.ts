@@ -15,6 +15,11 @@ export class ListComponent {
   studentForm: any = {}
   selectedFile: File | null = null;
   flagIndex: number = -1;
+  searchItems = '';
+  //pagination
+  totalLength: any;
+  page: number = 1;
+  
 
   validateForm: FormGroup;
 
@@ -113,5 +118,25 @@ export class ListComponent {
     if(control.value && control.value.trim() === '') 
       return {noWhiteSpace: true}
      return null;
+  }
+
+  search() {
+    if (this.searchItems.trim() === '') {
+      // Nếu ô tìm kiếm trống, hiển thị tất cả sinh viên
+      this.loadStudents()
+    } else {
+      // Nếu có từ khóa tìm kiếm, lọc danh sách sinh viên dựa trên từ khóa
+      this.students = this.studentsService.getAll().filter(student => {
+        const searchItems = this.searchItems.toLowerCase();
+        return (
+          student.name.toLowerCase().includes(searchItems) ||
+          student.email.toLowerCase().includes(searchItems) ||
+          student.phone.toString().toLowerCase().includes(searchItems) ||
+          student.country.toLowerCase().includes(searchItems) ||
+          student.dob.toLowerCase().includes(searchItems) ||
+          student.gender.toLowerCase().includes(searchItems)
+        );
+      });
+    }
   }
 }

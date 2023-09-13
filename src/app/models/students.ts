@@ -4,6 +4,6 @@ export interface Students {
     phone: string;
     dob: string;
     country: string;
-    gender: boolean;
+    gender: string;
     image: string;
 }

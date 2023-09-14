@@ -63,13 +63,13 @@ export class HomeComponent implements OnInit {
         const reader = new FileReader();
         reader.onload = (event: any) => {
           this.studentForm.image = event.target.result;
-          this.studentsService.updateService(this.flagIndex, this.studentForm);
+          this.studentsService.updateService(this.studentForm);
           this.cancelEdit(); // Kết thúc chỉnh sửa
         };
         reader.readAsDataURL(this.selectedFile);
       } else {
         // Nếu không có tệp mới được chọn, chỉ cập nhật thông tin khác
-        this.studentsService.updateService(this.flagIndex, this.studentForm);
+        this.studentsService.updateService(this.studentForm);
         this.cancelEdit(); // Kết thúc chỉnh sửa
       }
     }

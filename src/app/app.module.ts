@@ -9,10 +9,6 @@ import { HeaderComponent } from './header/header.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 
-
-
-
-
 const routes: Routes = [
   {
     path: 'add',

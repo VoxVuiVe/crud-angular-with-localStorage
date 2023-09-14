@@ -1,3 +1,4 @@
+
 .container {
   color: white;
 }
@@ -226,3 +227,29 @@ option {
   /* Microsoft Edge*/
   color: rgba(243, 165, 42, 0.4);
 }
+
+.form-search {
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+}
+
+.form-search > input {
+  margin: 20px;
+  color: black;
+  background-color: white; 
+  width: 250px;
+}
+
+.form-search {
+  display: flex;
+  justify-content: center;
+  justify-items: center;
+}
+
+.form-search > input {
+  margin: 20px;color: black; background-color: white; width: 250px;
+}
+
+
+// Định dạng phân trang

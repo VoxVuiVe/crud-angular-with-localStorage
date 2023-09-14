@@ -4,6 +4,7 @@ import { Students } from '../models/students';
 import { StudentService } from '../services/student.service';
 
 
+
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -11,24 +12,27 @@ import { StudentService } from '../services/student.service';
 })
 
 export class ListComponent {
-  students: Students[] = [];
-  studentForm: any = {}
+  students: Students[] = []; 
+  studentForm: any = {} //Khai bao de luu SV trong form
   selectedFile: File | null = null;
-  flagIndex: number = -1;
+  flagIndex: number = -1; //De xac dinh sinh vien.
+  isEditing = false;
+
+  // Search
   searchItems = '';
-  //pagination
+
+  // Pagination
   totalLength: any;
   page: number = 1;
-  
 
-  validateForm: FormGroup;
+  validateForm: FormGroup; //duoc su dung de quan li va kiem tra bieu mau
 
   ngOnInit(): void {
     this.loadStudents();
     this.reset()
   }
 
-  onFileSelected(event: any) {
+  onFileSelected(event: any) { //tạo onFileSelected de xu li ng dung khi chon tep thong qua su kien (event)
     this.selectedFile = event.target.files[0];
   }
 
@@ -51,48 +55,61 @@ export class ListComponent {
   addStudent() {
     if (this.studentForm && this.selectedFile) {
       const reader = new FileReader();
-      reader.onload = (event: any) => {
+      reader.onload = (event: any) => {;
         this.studentForm.image = event.target.result;
         this.studentsService.addService(this.studentForm);
-        this.studentForm = {};
-        this.selectedFile = null;
+        // this.studentForm = {};
+        // this.selectedFile = null;
         this.cancelEdit();
       };
       reader.readAsDataURL(this.selectedFile);
     }
   }
 
-  updateStudent() {
-    if (this.flagIndex !== null) {
-      if (this.selectedFile) {
-        const reader = new FileReader();
-        reader.onload = (event: any) => {
-          this.studentForm.image = event.target.result;
-          this.studentsService.updateService(this.flagIndex, this.studentForm);
-          this.studentForm = {};
-          this.cancelEdit(); // Kết thúc chỉnh sửa
-          this.selectedFile = null;
-        };
-        reader.readAsDataURL(this.selectedFile);
-      } else {
-        // Nếu không có tệp mới được chọn, chỉ cập nhật thông tin khác
-        this.studentsService.updateService(this.flagIndex, this.studentForm);
+  updateStudent(students: Students): void {
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.studentForm.image = event.target.result;
+        this.studentsService.updateService(this.studentForm);
         this.cancelEdit(); // Kết thúc chỉnh sửa
-      }
-    }
-  }
-
-  submitForm() {
-    if(this.flagIndex !== -1) {
-      this.updateStudent()
+      };
+      reader.readAsDataURL(this.selectedFile);
     } else {
-      this.addStudent()
+      // Nếu không có tệp mới được chọn, chỉ cập nhật thông tin khác
+      this.studentsService.updateService(this.studentForm);
+      this.cancelEdit(); // Kết thúc chỉnh sửa
     }
   }
 
-  editStudent(index: number) {
-    this.flagIndex = index; // Bắt đầu chỉnh sửa
-    this.studentForm = { ...this.students[index] };
+  saveOrUpdate(students: Students): void {
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        students.image = event.target.result;
+        if (students.id) {
+          // Nếu có ID, thì đây là một người đã tồn tại, cần cập nhật
+          this.studentsService.updateService(students);
+        } else {
+          // Nếu không có ID, thì đây là một người mới, cần thêm mới
+          this.studentsService.addService(students);
+        }
+        this.cancelEdit();
+      };
+      reader.readAsDataURL(this.selectedFile);
+    } else {
+      if (students.id) {
+        this.studentsService.updateService(students);
+      } else {
+        this.studentsService.addService(students);
+      }
+      this.cancelEdit();
+    }
+  }
+
+  editStudent(students: Students) {
+    this.isEditing = true; 
+    this.studentForm = { ...students}; // dùng spread ... để copy tất cả thuộc tính từ student cần chỉnh sửa vào studentForm
   }
 
   cancelEdit() {
@@ -103,14 +120,15 @@ export class ListComponent {
     fileInput.value = '';
   }
 
-  deleteStudent(index: number) {
+  deleteStudent(id: number) {
     if (confirm('Are you sure you want to delete this employee?')) {
-      this.studentsService.deleteService(index);
+      this.studentsService.deleteService(id);
     }
+    this.loadStudents()
   }
 
   reset(): void {
-    // this.studentForm = {} as Students;
+    this.isEditing = false;
     this.validateForm.reset()
   }
 
@@ -122,11 +140,10 @@ export class ListComponent {
 
   search() {
     if (this.searchItems.trim() === '') {
-      // Nếu ô tìm kiếm trống, hiển thị tất cả sinh viên
       this.loadStudents()
     } else {
       // Nếu có từ khóa tìm kiếm, lọc danh sách sinh viên dựa trên từ khóa
-      this.students = this.studentsService.getAll().filter(student => {
+      this.students = this.studentsService.getAll().filter(student => { //Dung filter de loc tu khoa tim kiem
         const searchItems = this.searchItems.toLowerCase();
         return (
           student.name.toLowerCase().includes(searchItems) ||
